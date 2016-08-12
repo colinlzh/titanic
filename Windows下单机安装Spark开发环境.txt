@@ -1,0 +1,99 @@
+Windows下单机安装Spark开发环境
+
+机器：windows 10 64位。
+
+因Spark支持java、python等语言，所以尝试安装了两种语言环境下的spark开发环境。
+
+1、Java下Spark开发环境搭建
+
+1.1、jdk安装
+
+安装oracle下的jdk，我安装的是jdk 1.7，安装完新建系统环境变量JAVA_HOME，变量值为“C:\Program Files\Java\jdk1.7.0_79”，视自己安装路劲而定。
+
+同时在系统变量Path下添加C:\Program Files\Java\jdk1.7.0_79\bin和C:\Program Files\Java\jre7\bin。
+
+1.2 spark环境变量配置
+
+去http://spark.apache.org/downloads.html网站下载相应hadoop对应的版本，我下载的是spark-1.6.0-bin-hadoop2.6.tgz，spark版本是1.6，对应的hadoop版本是2.6
+
+解压下载的文件，假设解压 目录为：D:\spark-1.6.0-bin-hadoop2.6。将D:\spark-1.6.0-bin-hadoop2.6\bin添加到系统Path变量，同时新建SPARK_HOME变量，变量值为：D:\spark-1.6.0-bin-hadoop2.6
+
+1.3 hadoop工具包安装
+
+spark是基于hadoop之上的，运行过程中会调用相关hadoop库，如果没配置相关hadoop运行环境，会提示相关出错信息，虽然也不影响运行，但是这里还是把hadoop相关库也配置好吧。
+
+1.3.1 去下载hadoop 2.6编译好的包https://www.barik.net/archive/2015/01/19/172716/，我下载的是hadoop-2.6.0.tar.gz，
+
+1.3.2 解压下载的文件夹，将相关库添加到系统Path变量中：D:\hadoop-2.6.0\bin；同时新建HADOOP_HOME变量，变量值为：D:\hadoop-2.6.0
+
+1.4 eclipse环境
+
+直接新建java工程，将D:\spark-1.6.0-bin-hadoop2.6\lib下的spark-assembly-1.6.0-hadoop2.6.0.jar添加到工程中就可以了。
+
+2、Python下Spark开发环境搭建
+
+2.1 安装python,并添加到系统变量path中：C:\Python27和C:\Python27\Scripts
+
+2.2 重复1.2和1.3步骤
+
+2.3 将spark目录下的pyspark文件夹（D:\spark-1.6.0-bin-hadoop2.6\python\pyspark）复制到python安装目录C:\Python27\Lib\site-packages里
+
+2.4 在cmd命令行下运行pyspark，然后运行pip install py4j安装相关库。
+
+2.5 安装pycharm开始编程吧。
+
+
+II. PySpark with IPython Shell
+The following is adapted from Cloudera. I have removed some unnecessary steps if you just want to get up and running very quickly.
+
+1. Step 1: Create an ipython profile
+
+$ ipython profile create pyspark
+
+# Possible outputs
+# [ProfileCreate] Generating default config file: u'/Users/lim/.ipython/profile_spark/ipython_config.py'
+# [ProfileCreate] Generating default config file: u'/Users/lim/.ipython/profile_spark/ipython_kernel_config.py'
+2. Step 2: Create a startup file for this profile
+
+The goal is to have a startup file for this profile so that everytime you launch an IPython interactive shell session, it loads the spark context for you.
+
+$ touch ~/.ipython/profile_spark/startup/00-spark-setup.py
+A minimal working version of this file is
+
+import os
+import sys
+
+spark_home = os.environ.get('SPARK_HOME', None)
+sys.path.insert(0, os.path.join(spark_home, 'python'))
+sys.path.insert(0, os.path.join(spark_home, 'python/lib/py4j-0.8.2.1-src.zip'))
+execfile(os.path.join(spark_home, 'python/pyspark/shell.py'))
+Verify that this works
+
+$ ipython --profile=spark
+You should see a welcome screen similar to this with the SparkContext object pre-created
+
+
+Fig. 1 | Spark welcome screen
+III. PySpark with Jupyter Notebook
+After getting spark to work with IPython interactive shell, the next step is to get it to work with the Jupyter Notebook. Unfortunately, since the big split, Jupyter Notebook doesn’t support IPython profile out of the box anymore. To reuse the profile we created earlier, we are going to provide a modified IPython kernel for any spark-related notebook. The strategy is described here but it has some unnecessary boilerplates/outdated information, so here is an improved version:
+
+1. Preparing the kernel spec
+
+IPython kernel specs reside in ~/.ipython/kernels, so let’s create a spec for spark:
+
+$ mkdir -p ~/.ipython/kernels/spark
+$ touch ~/.ipython/kernels/spark/kernel.json
+with the following content:
+
+{
+    "display_name": "PySpark (Spark 1.5.2)",
+    "language": "python",
+    "argv": [
+        "/usr/bin/python2",
+        "-m",
+        "ipykernel",
+        "--profile=spark"
+        "-f",
+        "{connection_file}"
+    ]
+}
