@@ -86,13 +86,13 @@ $ touch ~/.ipython/kernels/spark/kernel.json
 with the following content:
 
 {
-    "display_name": "PySpark (Spark 1.5.2)",
+    "display_name": "PySpark ",
     "language": "python",
     "argv": [
-        "/usr/bin/python2",
+        "D:\\soft\\python\\python.exe",
         "-m",
         "ipykernel",
-        "--profile=spark"
+        "--profile=spark",
         "-f",
         "{connection_file}"
     ]
