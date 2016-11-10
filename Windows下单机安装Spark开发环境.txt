@@ -63,10 +63,10 @@ A minimal working version of this file is
 import os
 import sys
 
-spark_home = os.environ.get('SPARK_HOME', None)
+spark_home = os.environ.get('SPARK_HOME')
 sys.path.insert(0, os.path.join(spark_home, 'python'))
-sys.path.insert(0, os.path.join(spark_home, 'python/lib/py4j-0.8.2.1-src.zip'))
-execfile(os.path.join(spark_home, 'python/pyspark/shell.py'))
+sys.path.insert(0, os.path.join(spark_home, 'python/lib/py4j-0.10.3-src.zip'))
+exec(open(os.path.join(spark_home, 'python/pyspark/shell.py')).read())
 Verify that this works
 
 $ ipython --profile=spark
